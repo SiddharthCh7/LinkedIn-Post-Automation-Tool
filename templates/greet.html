@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeting Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        p {
+            color: #34495e;
+            font-size: 18px;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: bold;
+            color: #16a085;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Our Website!</h1>
+    <p class="greeting">Hello, <span id="user-name">Guest</span>! We're glad you're here.</p>
+    <p>Hope you enjoy your stay.</p>
+
+    <script>
+        // If user data is available in sessionStorage or localStorage, greet them by name
+        let userName = sessionStorage.getItem('profile_data') || 'Guest';  // You can replace this with dynamic data if needed
+        document.getElementById('user-name').textContent = userName;
+    </script>
+</body>
+</html>
