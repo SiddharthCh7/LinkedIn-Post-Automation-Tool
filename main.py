@@ -1,7 +1,7 @@
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from fastapi import HTTPException, FastAPI, Depends, Request
+from fastapi import HTTPException, FastAPI, Depends, Request, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy import create_engine, Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
@@ -9,8 +9,10 @@ from sqlalchemy.orm import sessionmaker
 import uuid
 from datetime import datetime
 import requests
+import os
+from dotenv import load_dotenv
 from starlette.middleware.sessions import SessionMiddleware
-
+from database.embed import Agent
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -57,13 +59,15 @@ def get_db():
         db.close()
 
 # URLs
+load_dotenv()
 REDIRECT_URI = 'http://localhost:8000/callback'
-CLIENT_ID = '86jz9u3cqsznsq'
-CLIENT_SECRET = 'WPL_AP1.tEJ51YCsRJRxkjFh.AE2FYQ=='
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 AUTHORIZATION_URL = "https://www.linkedin.com/oauth/v2/authorization"
 TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken'
 PROFILE_URL = 'https://api.linkedin.com/v2/userinfo'
 EMAIL_URL = 'https://api.linkedin.com/v2/emailAddress'
+
 
 
 # Routes and Methods
@@ -119,7 +123,7 @@ def callback(request:Request, db: Session = Depends(get_db)):
 
         # Storing the session id in the cookie (as a session identifier)
         request.session['session_id'] = session_id
-        return f"Welcome {profile_data['given_name']}!!"
+        return templates.TemplateResponse('greet.html', {"request": request, "user_details": profile_data, "message":None})
     
     except Exception as e:
         return f"Exception : {e}"
@@ -143,7 +147,9 @@ async def post_on_linkedin(request: Request, db: Session = Depends(get_db)):
 
         if not access_token or not profile_data:
             raise HTTPException(status_code=400, detail="Invalid session data")
-
+        topic = "Will AI replace humans?"
+        agent = Agent(topic)
+        result = agent.execute()
         post_url = "https://api.linkedin.com/v2/ugcPosts"
         post_data = {
             "author": f"urn:li:person:{profile_data['sub']}",
@@ -151,7 +157,7 @@ async def post_on_linkedin(request: Request, db: Session = Depends(get_db)):
             "specificContent": {
                 "com.linkedin.ugc.ShareContent": {
                     "shareCommentary": {
-                        "text": "Testing Phase - I"
+                        "text": result,
                     },
                     "shareMediaCategory": "NONE",
                 }
@@ -176,9 +182,13 @@ async def post_on_linkedin(request: Request, db: Session = Depends(get_db)):
 
 
 
-# query = "Who is Sid?"
-# agent = Agent(query)
-# result = agent.execute()
-# print(result)
+@app.post('/receive_topic')
+async def topic(request: Request, topic: str=Form(...)):
+    agent = Agent(topic)
+    print(f"Received the topic : {topic}")
+    result = agent.execute()
+    print(f"result : {result}")
+    return templates.TemplateResponse('greet.html', {"request":request,"user_details":None ,"message":result})
+
 
 

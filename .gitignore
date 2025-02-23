@@ -1,2 +1,4 @@
 lang/
 __pycache__/
+.env
+rough.py

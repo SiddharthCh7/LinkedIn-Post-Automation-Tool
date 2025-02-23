@@ -1,11 +1,11 @@
 import os
 import re
-import sys
 import requests
 from googleapiclient.discovery import build
 from bs4 import BeautifulSoup
 from langchain_core.documents import Document
-
+from dotenv import load_dotenv
+load_dotenv()
 
 class Scrape:
     def __init__(self, query):
@@ -75,20 +75,3 @@ class Scrape:
             return document_objs
         except:
             return None
-    
-
-
-
-
-
-
-
-
-
-# scraper = Scrape("Who is Sam Altman")
-# res = scraper.scrape_results()
-# print(res)
-
-# for result in res:
-#     print(f"Link: {result['link']}")
-#     print(f"Content: {result['content']}\n")

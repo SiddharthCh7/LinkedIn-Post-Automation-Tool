@@ -7,33 +7,63 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f4f8;
-            text-align: center;
-            padding: 50px;
+            padding: 20px;
         }
-        h1 {
-            color: #2c3e50;
-        }
-        p {
-            color: #34495e;
-            font-size: 18px;
+        .container {
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
         }
         .greeting {
             font-size: 24px;
-            font-weight: bold;
-            color: #16a085;
+            margin-bottom: 20px;
+        }
+        .topic-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to Our Website!</h1>
-    <p class="greeting">Hello, <span id="user-name">Guest</span>! We're glad you're here.</p>
-    <p>Hope you enjoy your stay.</p>
-
-    <script>
-        // If user data is available in sessionStorage or localStorage, greet them by name
-        let userName = sessionStorage.getItem('profile_data') || 'Guest';  // You can replace this with dynamic data if needed
-        document.getElementById('user-name').textContent = userName;
-    </script>
+    <div class="container">
+        <div class="greeting">
+        {% if user_details %}
+            <p>Hello, {{ user_details.given_name }}! Welcome to the page.</p>
+        {% else %}
+            <p>Hello, Anonymous! Welcome to the page.</p>
+        {% endif %}
+        </div>
+        <div>
+            <form action="/receive_topic" method="post">
+                <label for="topic">Enter a Topic:</label>
+                <input type="text" id="topic" name="topic" class="topic-input" placeholder="Enter your topic">
+                <br><br>
+                <button type="submit">Submit Topic</button>
+            </form>
+        </div>
+        {% if message %}
+        <div class="message">
+            <p>{{ message }}</p>
+        </div>
+        {% endif %}
+    </div>
 </body>
 </html>
