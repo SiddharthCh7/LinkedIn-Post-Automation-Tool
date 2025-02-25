@@ -22,7 +22,7 @@ class Agent:
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.persistent_dir = os.path.join(self.current_dir, "chroma_db")
         self.current_files_in_database = os.listdir(os.path.join(self.current_dir,"chroma_db"))
-        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+        self.llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         self.scraper = Scrape(query)
 
