@@ -13,8 +13,12 @@ class Scrape:
         self.service = build("customsearch", "v1", developerKey=os.getenv('GOOGLE_SEARCH_API_KEY'))
     
     def google_search(self, query, **kwargs):
-        res = self.service.cse().list(q=query, cx=os.getenv('SEARCH_ENGINE_ID'), **kwargs).execute()
-        return res
+        try:
+            res = self.service.cse().list(q=query, cx=os.getenv('SEARCH_ENGINE_ID'), **kwargs).execute()
+            return res
+        except Exception as e:
+            print(f"Exception in google_search: {e}")
+            return None
 
     def clean_text(self, text):
         unwanted_phrases = [
@@ -48,15 +52,18 @@ class Scrape:
 
                 cleaned_text = self.clean_text(text)
                 return cleaned_text
-        
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching {url}: {e}")
-            return None
+            print(f"Error fetching current url, trying another one......\n{url}")
+            return False
 
     def search_internet(self):
-        res = self.google_search(self.query)
-        top_results = res.get("items", [])[:5]
-        return top_results
+        try:
+            res = self.google_search(self.query)
+            top_results = res.get("items", [])
+            return top_results
+        except Exception as e:
+            print(f"Exception in search_internet: {e}")
+            return None
 
     def scrape_results(self):
         try:
@@ -66,6 +73,8 @@ class Scrape:
             for item in top_results:
                 link = item['link']
                 content = self.get_page_content(link)
+                if not content:
+                    continue
                 document = Document(
                     page_content=content,
                     metadata={"source": link}
@@ -73,5 +82,6 @@ class Scrape:
                 if content:
                     document_objs.append(document)
             return document_objs
-        except:
+        except Exception as e:
+            print(f"Exception in scrape_results: {e}")
             return None
