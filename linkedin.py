@@ -3,9 +3,9 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from fastapi import HTTPException, FastAPI, Depends, Request, Form
 from fastapi.responses import RedirectResponse
-from sqlalchemy import create_engine, Column, String, DateTime
+from sqlalchemy import create_engine, Column, String, DateTime, JSON
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 import uuid
 from datetime import datetime
 import requests
@@ -14,7 +14,22 @@ from dotenv import load_dotenv
 from starlette.middleware.sessions import SessionMiddleware
 from database.embed import Agent
 
+
 load_dotenv()
+
+Base = declarative_base()
+class SessionData(Base):
+    __tablename__ = "session_data"
+
+    id = Column(String, primary_key=True, index=True)
+    access_token = Column(String, nullable=False)
+    profile_data = Column(JSON, nullable=False)
+
+    def __init__(self, access_token: str, profile_data: dict):
+        self.access_token = access_token
+        self.profile_data = profile_data
+
+
 
 class LinkedInAutoPostApp:
     def __init__(self):

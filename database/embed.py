@@ -21,10 +21,10 @@ class Agent:
         # self.llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
         self.llm="deepseek/deepseek-r1:free"
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-        self.scraper = Scrape(query)
+        self.scraper = Scrape()
 
 
-    def call_model_with_rag(self, query, docs):
+    def call_model_with_rag(self, docs):
         try:
             system_message = {
                 "role" : "system",
@@ -71,7 +71,7 @@ class Agent:
             documents_content = "\n\n".join([doc.page_content for doc in docs]) if docs else None
             user_message = {
                 "role": "user",
-                "content": "Topic: {}, Here are the relevant docs that could help: {}.".format(query, documents_content)
+                "content": "Topic: {}, Here are the relevant docs that could help: {}.".format(self.query, documents_content)
             }
             messages = [system_message, user_message]
             response = requests.post(
@@ -194,9 +194,9 @@ class Agent:
     #     return output
 
     def scrape_and_embed(self):
-        docs_after_scraping = self.scraper.scrape_results()
+        docs_after_scraping = self.scraper.scrape_results(self.query)
         if docs_after_scraping is None:
-            result_wo_rag = self.call_model_with_rag(query=self.query, docs=None)
+            result_wo_rag = self.call_model_with_rag(docs=None)
             return f"Output w/o RAG: {result_wo_rag}"
         else:
             text_splitter = CharacterTextSplitter(chunk_size=30, chunk_overlap=5)
@@ -216,7 +216,7 @@ class Agent:
             )
             relevant_docs = retriever.invoke(self.query)
 
-            result_w_rag = self.call_model_with_rag(query=self.query, docs=relevant_docs)
+            result_w_rag = self.call_model_with_rag(docs=relevant_docs)
             return f"RAG Output : {result_w_rag}"
 
     def vaccum_database(self,path):
@@ -230,6 +230,8 @@ class Agent:
 
     def execute(self):
         output = self.scrape_and_embed()
+        if output is None:
+            return "Something's Wrong!! (in 'execute' function)"
         self.vaccum_database(os.path.join(self.current_dir, "chroma_db", "chroma.sqlite3"))
         return output
 

@@ -84,7 +84,7 @@ def login():
 
 
 @app.get('/callback', response_class=HTMLResponse)
-def callback(request:Request, db: Session = Depends(get_db)):
+async def callback(request:Request, db: Session = Depends(get_db)):
     try:
         code = request.query_params.get('code')
         if not code:
@@ -130,7 +130,7 @@ def callback(request:Request, db: Session = Depends(get_db)):
 
 
 @app.get('/post')
-async def post_on_linkedin(request: Request, db: Session = Depends(get_db)):
+async def post_on_linkedin(request: Request, topic, db: Session = Depends(get_db)):
     try:
         session_id = request.session.get('session_id')
         if not session_id:
@@ -147,7 +147,7 @@ async def post_on_linkedin(request: Request, db: Session = Depends(get_db)):
 
         if not access_token or not profile_data:
             raise HTTPException(status_code=400, detail="Invalid session data")
-        topic = "Will AI replace humans?"
+        # topic = "Will AI replace humans?"
         agent = Agent(topic)
         result = agent.execute()
         post_url = "https://api.linkedin.com/v2/ugcPosts"
@@ -185,10 +185,9 @@ async def post_on_linkedin(request: Request, db: Session = Depends(get_db)):
 @app.post('/receive_topic')
 async def topic(request: Request, topic: str=Form(...)):
     agent = Agent(topic)
-    print(f"Received the topic : {topic}")
     result = agent.execute()
-    print(f"result : {result}")
-    return templates.TemplateResponse('greet.html', {"request":request,"user_details":None ,"message":result})
+    profile_data = request.session['profile_data']
+    return templates.TemplateResponse('greet.html', {"request":request,"user_details":profile_data ,"message":result})
 
 
 

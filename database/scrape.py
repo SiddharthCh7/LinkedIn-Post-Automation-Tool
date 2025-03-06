@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Scrape:
-    def __init__(self, query):
-        self.query = query
+    def __init__(self):
         self.service = build("customsearch", "v1", developerKey=os.getenv('GOOGLE_SEARCH_API_KEY'))
     
     def google_search(self, query, **kwargs):
@@ -25,7 +24,8 @@ class Scrape:
             r'\b(sign up|sign in|log in|login|register)\b',
             r'\b(copyright|terms of service|privacy policy)\b',
             r'\b(advertisement|sponsored|promoted)\b',
-            r'\b(contact|about us|subscribe|share|follow)\b'
+            r'\b(contact|about us|subscribe|share|follow)\b',
+            r'We read every piece of feedback, and take your input very seriously. To see all available qualifiers, see our documentation.'
         ]
 
         pattern = '|'.join(unwanted_phrases)
@@ -56,18 +56,18 @@ class Scrape:
             print(f"Error fetching current url, trying another one......\n{url}")
             return False
 
-    def search_internet(self):
+    def search_internet(self, query):
         try:
-            res = self.google_search(self.query)
-            top_results = res.get("items", [])
+            res = self.google_search(query)
+            top_results = res.get("items", [])[:5]
             return top_results
         except Exception as e:
             print(f"Exception in search_internet: {e}")
             return None
 
-    def scrape_results(self):
+    def scrape_results(self, query):
         try:
-            top_results = self.search_internet()
+            top_results = self.search_internet(query)
             document_objs = []
             
             for item in top_results:
