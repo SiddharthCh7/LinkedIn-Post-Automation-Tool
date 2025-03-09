@@ -1,8 +1,6 @@
 from langchain_chroma import Chroma
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import sys, requests, json, os, getpass, sqlite3
 sys.path.append(r"F:\LPU\Code\Python\AI\database")
 from scrape import Scrape
@@ -18,7 +16,6 @@ class Agent:
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.persistent_dir = os.path.join(self.current_dir, "chroma_db")
         self.current_files_in_database = os.listdir(os.path.join(self.current_dir,"chroma_db"))
-        # self.llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
         self.llm="deepseek/deepseek-r1:free"
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         self.scraper = Scrape()
@@ -93,105 +90,6 @@ class Agent:
             print(f"Exception in call_model_with_rag: {e}")
             return None
 
-    # def call_model_with_rag(self,query, docs):
-    #     prompt_template_rag = ChatPromptTemplate.from_messages(
-    #         [
-    #             ("system",
-    #             """You are a professional LinkedIn content creator specializing in creating engaging posts. Format your output exactly like a LinkedIn post, following these guidelines:
-    #                 1. Start with a compelling hook (1-2 lines)
-    #                 2. Break content into 2-4 short, scannable paragraphs
-    #                 3. Include 3-5 relevant hashtags at the end
-    #                 4. Keep total length between 1000-1300 characters
-    #                 5. Use appropriate emojis (2-3 maximum) for visual engagement
-    #                 6. Include 1-2 rhetorical questions or calls-to-action
-    #                 7. Write in a professional yet conversational tone
-    #                 8. End with a thought-provoking statement or actionable insight
-
-    #                 Writing style:
-    #                 - Use active voice
-    #                 - Keep sentences concise
-    #                 - Include specific examples and data points
-    #                 - Maintain a positive, solution-oriented tone
-    #                 - Address the reader directly using "you" where appropriate
-    #                 - Include relevant industry insights and trends
-    #                 - Focus on providing value through actionable insights
-    #                 - Write with authority and expertise
-
-    #                 Formatting requirements:
-    #                 - Use line breaks between paragraphs
-    #                 - Avoid bullet points
-    #                 - No external links
-    #                 - No @mentions
-    #                 - No formatting markers or placeholders
-    #                 - Ensure the post is completely ready for direct publication
-
-    #                 Example structure:
-    #                 [Hook]
-    #                 [Line break]
-    #                 [Main content paragraph 1]
-    #                 [Line break]
-    #                 [Main content paragraph 2]
-    #                 [Line break]
-    #                 [Concluding thought/Call-to-action]
-    #                 [Line break]
-    #                 [Hashtags]
-    #                 """),
-
-    #             ("human", "Here are relevant documents that can help: {docs}. Here's the query : {query}")
-    #         ]
-    #     )
-    #     seq = prompt_template_rag | self.llm | StrOutputParser()
-    #     output = seq.invoke({"query":query, "docs":"\n\n".join([doc.page_content for doc in docs])})
-    #     return output
-    
-    # def call_model_without_rag(self, query):
-    #     prompt_template = ChatPromptTemplate.from_messages(
-    #         [
-    #             ("system", """You are a professional LinkedIn content creator specializing in creating engaging posts. Create a post on the given topic. Format your output exactly like a LinkedIn post, following these guidelines:
-    #                 1. Start with a compelling hook (1-2 lines)
-    #                 2. Break content into 2-4 short, scannable paragraphs
-    #                 3. Include 3-5 relevant hashtags at the end
-    #                 4. Keep total length between 1000-1300 characters
-    #                 5. Use appropriate emojis (2-3 maximum) for visual engagement
-    #                 6. Include 1-2 rhetorical questions or calls-to-action
-    #                 7. Write in a professional yet conversational tone
-    #                 8. End with a thought-provoking statement or actionable insight
-
-    #                 Writing style:
-    #                 - Use active voice
-    #                 - Keep sentences concise
-    #                 - Include specific examples and data points
-    #                 - Maintain a positive, solution-oriented tone
-    #                 - Address the reader directly using "you" where appropriate
-    #                 - Include relevant industry insights and trends
-    #                 - Focus on providing value through actionable insights
-    #                 - Write with authority and expertise
-
-    #                 Formatting requirements:
-    #                 - Use line breaks between paragraphs
-    #                 - Avoid bullet points
-    #                 - No external links
-    #                 - No @mentions
-    #                 - No formatting markers or placeholders
-    #                 - Ensure the post is completely ready for direct publication
-
-    #                 Example structure:
-    #                 [Hook]
-    #                 [Line break]
-    #                 [Main content paragraph 1]
-    #                 [Line break]
-    #                 [Main content paragraph 2]
-    #                 [Line break]
-    #                 [Concluding thought/Call-to-action]
-    #                 [Line break]
-    #                 [Hashtags]
-    #                 """),
-    #             ("human", "Here's the query: {query}")
-    #         ]
-    #     )
-    #     seq = prompt_template | self.llm | StrOutputParser()
-    #     output = seq.invoke({"query": query})
-    #     return output
 
     def scrape_and_embed(self):
         docs_after_scraping = self.scraper.scrape_results(self.query)
@@ -217,7 +115,7 @@ class Agent:
             relevant_docs = retriever.invoke(self.query)
 
             result_w_rag = self.call_model_with_rag(docs=relevant_docs)
-            return f"RAG Output : {result_w_rag}"
+            return result_w_rag
 
     def vaccum_database(self,path):
         try:

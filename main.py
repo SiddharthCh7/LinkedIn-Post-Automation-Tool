@@ -72,6 +72,11 @@ EMAIL_URL = 'https://api.linkedin.com/v2/emailAddress'
 
 # Routes and Methods
 @app.get('/')
+def home(request:Request):
+    return templates.TemplateResponse('batman_landing.html', {"request": request})
+
+
+@app.get('/login')
 def login():
     auth_url = (
         f"https://www.linkedin.com/oauth/v2/authorization?"

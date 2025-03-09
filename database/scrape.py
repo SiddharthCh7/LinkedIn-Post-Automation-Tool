@@ -52,6 +52,7 @@ class Scrape:
 
                 cleaned_text = self.clean_text(text)
                 return cleaned_text
+
         except requests.exceptions.RequestException as e:
             print(f"Error fetching current url, trying another one......\n{url}")
             return False

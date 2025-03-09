@@ -1,6 +1,5 @@
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
 from fastapi import HTTPException, FastAPI, Depends, Request, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy import create_engine, Column, String, DateTime, JSON
@@ -195,9 +194,7 @@ class LinkedInAutoPostApp:
 
     async def topic(self, request: Request, topic: str = Form(...)):
         agent = Agent(topic)
-        print(f"Received the topic : {topic}")
         result = agent.execute()
-        print(f"result : {result}")
         return self.templates.TemplateResponse('greet.html', {"request": request, "user_details": None, "message": result})
 
 
