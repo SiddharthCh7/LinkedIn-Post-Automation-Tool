@@ -41,7 +41,7 @@ class LinkedInAutoPostApp:
         self.Base = declarative_base()
 
         # Environment variables for LinkedIn OAuth
-        self.REDIRECT_URI = 'http://localhost:8000/callback'
+        self.REDIRECT_URI = 'https://linkedout-a6rv.onrender.com/callback'
         self.CLIENT_ID = os.getenv('CLIENT_ID')
         self.CLIENT_SECRET = os.getenv('CLIENT_SECRET')
         self.AUTHORIZATION_URL = "https://www.linkedin.com/oauth/v2/authorization"
