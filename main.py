@@ -107,6 +107,8 @@ async def post_on_linkedin(request: Request, data : PostData):
             raise HTTPException(status_code=400, detail="Invalid session data")
         agent = Agent(data)
         result = agent.execute()
+        if result is None:
+            return "Error in 'execute()' function"
         post_url = "https://api.linkedin.com/v2/ugcPosts"
         post_data = {
             "author": f"urn:li:person:{profile_data['sub']}",

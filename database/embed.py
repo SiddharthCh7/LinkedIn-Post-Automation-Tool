@@ -87,7 +87,10 @@ class Agent:
                 
             })
             )
-            output = response.json()['choices'][0]['message']['content']
+            result = response.json()
+            if "choices" not in result or not result["choices"]:
+                return {"error": True, "message": "Unexpected API response format"}
+            output = result['choices'][0]['message']['content']
             return output
         except Exception as e:
             print(f"Exception in call_model_with_rag: {e}")
@@ -211,19 +214,11 @@ class Agent:
         if self.data.domain == 'topic':
             output = self.scrape_and_embed()
             if output is None:
-                return "Something's Wrong!! (in 'execute' function)"
+                return None
             self.vaccum_database(os.path.join(self.current_dir, "chroma_db", "chroma.sqlite3"))
             return output
         elif self.data.domain == 'github':
             output = self.scrape_and_embed_github(self.data.value)
             return output
         else:
-            return 'something wrong while fetching domain'
-
-
-
-
-
-
-
-
+            return 'Cannot fetch domain'
