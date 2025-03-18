@@ -1,6 +1,6 @@
-import requests, os, base64
+import requests, os
 from dotenv import load_dotenv
-from .scrape import Scrape
+from scrape import Scrape
 from bs4 import BeautifulSoup
 load_dotenv()
 
@@ -13,7 +13,6 @@ class Github:
         self.scraper = Scrape()
     
     def read_readme(self, url):
-        print(url)
         response = requests.get(url, headers=self.headers)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -23,5 +22,4 @@ class Github:
             return cleaned_text
         else:
             print(f"Failed to retrieve data: {response.status_code}")
-            print(response.content)
             return None

@@ -1,13 +1,8 @@
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from fastapi import HTTPException, FastAPI, Depends, Request, Form
+from fastapi import HTTPException, FastAPI, Depends, Request, Form, Query
 from fastapi.responses import RedirectResponse
-from sqlalchemy import create_engine, Column, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import uuid
-from datetime import datetime
 import requests
 import os
 from dotenv import load_dotenv
@@ -16,47 +11,8 @@ from database.embed import Agent
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-app.add_middleware(SessionMiddleware, secret_key="secret_lang")
+app.add_middleware(SessionMiddleware, secret_key="secret_lang2")
 
-DATABASE_URL = 'sqlite:///database/test.db'
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# Session table
-class Session(Base):
-    __tablename__ = "sessions"
-
-    id = Column(String, primary_key=True, index=True)
-    data = Column(String, nullable=False)
-    last_accessed = Column(DateTime, default=datetime.now())
-
-# Data Structure
-class SessionData(BaseModel):
-    access_token: str
-    profile_data: dict
-
-# Creating the database table
-Base.metadata.create_all(bind=engine)
-
-# Helper function to create a session in the database
-def create_session(db_session, data: str):
-    session_id = str(uuid.uuid4())
-    db_session.add(Session(id=session_id, data=data))
-    db_session.commit()
-    return session_id
-
-# Helper function to get session data from the database
-def get_session(db_session, session_id: str):
-    return db_session.query(Session).filter(Session.id == session_id).first()
-
-# Dependency to get the database session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # URLs
 load_dotenv()
@@ -73,7 +29,7 @@ EMAIL_URL = 'https://api.linkedin.com/v2/emailAddress'
 # Routes and Methods
 @app.get('/')
 def home(request:Request):
-    return templates.TemplateResponse('batman_landing.html', {"request": request})
+    return templates.TemplateResponse('new.html', {"request": request})
 
 
 @app.get('/login')
@@ -87,9 +43,18 @@ def login():
     )
     return RedirectResponse(url=auth_url)
 
+@app.get('/logout')
+def logout(request:Request):
+    request.session.clear()
+    response = RedirectResponse(url='/')
+    for c in request.cookies:
+        response.delete_cookie(c)
+    response.delete_cookie("session")
+    return response
+
 
 @app.get('/callback', response_class=HTMLResponse)
-async def callback(request:Request, db: Session = Depends(get_db)):
+async def callback(request:Request):
     try:
         code = request.query_params.get('code')
         if not code:
@@ -119,41 +84,28 @@ async def callback(request:Request, db: Session = Depends(get_db)):
         })
 
         profile_data = profile_response.json()
-
-        # Storing the data of the user in the session
         request.session['profile_data'] = profile_data
 
-        session_data = SessionData(access_token=access_token, profile_data=profile_data)
-        session_id = create_session(db, str(session_data.model_dump()))
-
-        # Storing the session id in the cookie (as a session identifier)
-        request.session['session_id'] = session_id
-        return templates.TemplateResponse('greet.html', {"request": request, "user_details": profile_data, "message":None})
+        return templates.TemplateResponse('new.html', {"request": request, "user_details": profile_data})
     
     except Exception as e:
         return f"Exception : {e}"
 
 
-@app.get('/post')
-async def post_on_linkedin(request: Request, topic, db: Session = Depends(get_db)):
-    try:
-        session_id = request.session.get('session_id')
-        if not session_id:
-            raise HTTPException(status_code=400, detail="No session found")
-        
-        session_data = get_session(db, session_id)
-        if not session_data:
-            raise HTTPException(status_code=400, detail="Session not found")
-        
-        session_data_dict = eval(session_data.data)
 
-        access_token = session_data_dict.get('access_token')
-        profile_data = session_data_dict.get('profile_data')
+class PostData(BaseModel):
+    domain: str
+    value: str
+
+@app.post('/post')
+async def post_on_linkedin(request: Request, data : PostData):
+    try:
+        profile_data = request.session.get('profile_data')
+        access_token = request.session.get('access_token')
 
         if not access_token or not profile_data:
             raise HTTPException(status_code=400, detail="Invalid session data")
-        # topic = "Will AI replace humans?"
-        agent = Agent(topic)
+        agent = Agent(data)
         result = agent.execute()
         post_url = "https://api.linkedin.com/v2/ugcPosts"
         post_data = {
@@ -171,24 +123,25 @@ async def post_on_linkedin(request: Request, topic, db: Session = Depends(get_db
                 "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
             }
         }
-
         post_response = requests.post(post_url, headers={
                 'Authorization': f'Bearer {access_token}',
                 'X-Restli-Protocol-Version': '2.0.0',},
                 json=post_data)
         
         if post_response.status_code == 201:
-            return {"message": "Post created successfully."}
+            return True
         else:
             raise HTTPException(status_code=post_response.status_code, detail=post_response.text)
 
     except Exception as e:
+        print(f"Exception in /post : {str(e)}")
         return f"Exception in /post : {str(e)}"
 
 
 
 @app.post('/receive_topic')
-async def topic(request: Request, topic: str=Form(...)):
+async def topic(request: Request, data: str=Form(...)):
+    topic = data.get('value')
     agent = Agent(topic)
     result = agent.execute()
     profile_data = request.session['profile_data']
