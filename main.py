@@ -96,7 +96,7 @@ EMAIL_URL = 'https://api.linkedin.com/v2/emailAddress'
 
 
 
-# Routes and Methods
+# Routes(urls) and Methods
 @app.get('/')
 def home(request:Request):
     return templates.TemplateResponse('new.html', {"request": request})
