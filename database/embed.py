@@ -8,8 +8,7 @@ from github import Github
 from dotenv import load_dotenv
 load_dotenv()
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-if "GOOGLE_API_KEY" not in os.environ:
-    os.environ["GOOGLE_API_KEY"] = getpass.getpass("Provide your Google API key here")
+
 
 class Agent:
     def __init__(self, data):
@@ -78,7 +77,7 @@ class Agent:
             response = requests.post(
                 url="https://openrouter.ai/api/v1/chat/completions",
                 headers={
-                    "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+                    "Authorization": "Bearer {}".format(os.getenv('OPENROUTER_API_KEY')),
                     "Content-Type": "application/json",
                 },
                 
