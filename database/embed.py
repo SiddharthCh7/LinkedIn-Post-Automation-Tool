@@ -74,18 +74,18 @@ class Agent:
                 "content": "Topic: {}, Here are the relevant docs that could help: {}.".format(self.query, documents_content)
             }
             messages = [system_message, user_message]
+
             response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
-                "Content-Type": "application/json",
-            },
-            
-            data=json.dumps({
-                "model": "deepseek/deepseek-r1:free",
-                "messages": messages,
+                url="https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+                    "Content-Type": "application/json",
+                },
                 
-            })
+                data=json.dumps({
+                    "model": "deepseek/deepseek-r1:free",
+                    "messages": messages,
+                })
             )
             result = response.json()
             if "choices" not in result or not result["choices"]:
