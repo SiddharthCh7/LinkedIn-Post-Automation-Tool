@@ -86,7 +86,7 @@ app.add_middleware(CustomSessionMiddleware)
 
 # URLs
 load_dotenv()
-REDIRECT_URI = 'http://127.0.0.1:8000/callback'
+REDIRECT_URI = 'https://linkedout-a6rv.onrender.com/callback'
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 AUTHORIZATION_URL = "https://www.linkedin.com/oauth/v2/authorization"
