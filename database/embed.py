@@ -89,7 +89,7 @@ class Agent:
             )
             result = response.json()
             if "choices" not in result or not result["choices"]:
-                raise f"Error, invalid api response format."
+                raise ValueError("Error, invalid API response format.")
             output = result['choices'][0]['message']['content']
             return output
         except Exception as e:
