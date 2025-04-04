@@ -3,6 +3,8 @@
 ## 📌 Overview
 Tired of manually creating LinkedIn posts? This tool **automates** the entire process—from finding relevant content to publishing a well-structured post. Simply provide a **topic name** or a **GitHub README link**, and let AI do the magic! ✨
 
+🌐 **Live**: [https://linkedout-a6rv.onrender.com/](https://linkedout-a6rv.onrender.com/)  
+
 ## 🔥 How It Works
 1. **User Input 📝**: Enter a **topic name** or a **GitHub README link**.
 2. **Custom Search Engine 🔍**: The tool queries **Google Custom Search API** to fetch relevant web links.
