@@ -1,7 +1,7 @@
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from fastapi import HTTPException, FastAPI, Depends, Request, Form, Query
+from fastapi import HTTPException, FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 import requests
 import os, json, uuid
@@ -10,7 +10,7 @@ from database.embed import Agent
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy import create_engine, Column, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 app = FastAPI()
@@ -86,7 +86,7 @@ app.add_middleware(CustomSessionMiddleware)
 
 # URLs
 load_dotenv()
-REDIRECT_URI = 'https://linkedout-a6rv.onrender.com/callback'
+REDIRECT_URI = os.getenv('REDIRECT_URI')
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 AUTHORIZATION_URL = "https://www.linkedin.com/oauth/v2/authorization"
@@ -179,6 +179,7 @@ async def post_on_linkedin(request: Request, data : PostData):
         result = agent.execute()
         if result is None:
             return "Error in 'execute()' function"
+        print(result)
         post_url = "https://api.linkedin.com/v2/ugcPosts"
         post_data = {
             "author": f"urn:li:person:{profile_data['sub']}",
@@ -221,3 +222,4 @@ async def topic(request: Request, data: str=Form(...)):
 
 
 
+#https://linkedout-a6rv.onrender.com/callback

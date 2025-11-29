@@ -13,7 +13,7 @@ Tired of manually creating LinkedIn posts? This tool **automates** the entire pr
 3. **Scraping with Failure Handling 🕷️**: Extracts content using **BeautifulSoup**, with mechanisms to handle non-scrapable websites.
 4. **Embedding & Storage 📚**: The extracted content is embedded and stored in **ChromaDB** for efficient retrieval.
 5. **Similarity Search 🔎**: Retrieves the most relevant content using similarity search techniques.
-6. **AI-Generated Post 🤖**: **DeepSeek R1** model from **OpenRouter** processes the retrieved content with a precise brief prompt and crafts an engaging LinkedIn post.
+6. **AI-Generated Post 🤖**: **LLM** from **OpenRouter** processes the retrieved content with a precise brief prompt and crafts an engaging LinkedIn post.
 7. **Auto-Publish 🚀**: The post is **instantly** published on LinkedIn using the **LinkedIn API**.
 
 ## 🎯 Key Features
@@ -30,7 +30,6 @@ Tired of manually creating LinkedIn posts? This tool **automates** the entire pr
 - **BeautifulSoup** 🕷️ – For robust web scraping  
 - **ChromaDB** 📚 – Vector database for efficient retrieval  
 - **LangChain** 🔗 – For similarity search & content retrieval  
-- **DeepSeek R1** 🤖 – AI model from **OpenRouter** for post generation  
 - **LinkedIn API** 🔗 – For automated post publishing  
 
 ## 🏆 Impact

@@ -17,7 +17,7 @@ class Agent:
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
         self.persistent_dir = os.path.join(self.current_dir, "chroma_db")
         self.current_files_in_database = os.listdir(os.path.join(self.current_dir,"chroma_db"))
-        self.llm="deepseek/deepseek-r1:free"
+        self.llm=os.getenv("model_name")
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         self.scraper = Scrape()
         self.github = Github()
@@ -82,7 +82,7 @@ class Agent:
                 },
                 
                 data=json.dumps({
-                    "model": "deepseek/deepseek-r1:free",
+                    "model": self.llm,
                     "messages": messages,
                 })
             )
@@ -156,7 +156,7 @@ class Agent:
             },
             
             data=json.dumps({
-                "model": "deepseek/deepseek-r1:free",
+                "model": self.llm,
                 "messages": messages,
                 
             })
