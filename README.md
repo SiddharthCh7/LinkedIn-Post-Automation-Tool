@@ -76,8 +76,5 @@ GITHUB_API_KEY
 ## 🤝 Contributing
 Contributions welcome! Fork the repo & submit a PR. Let's build this together! 💡
 
-## 📄 License
-MIT License
-
 ---
 💡 Developed by [Siddharth](https://linkedin.com/in/siddharth-ch05)
